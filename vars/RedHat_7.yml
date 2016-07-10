@@ -1,0 +1,8 @@
+iptables_pkgs:
+  - iptables-services
+  - iptables-utils
+iptables_service: iptables
+iptables_config: '/etc/sysconfig/iptables'
+
+
+

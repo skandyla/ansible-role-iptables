@@ -1,0 +1,26 @@
+galaxy_info:
+  author: Sergey Kandyla
+  description: Iptables persistent firewall for CentOS and Ubuntu
+  license: "license BSD"
+  min_ansible_version: 1.8
+  platforms:
+  - name: EL
+    versions:
+    - 6
+    - 7
+  - name: Ubuntu
+    versions:
+    - precise
+    - trusty
+    - xenial
+  - name: Debian
+    versions:
+    - jessie
+    - wheezy
+
+  galaxy_tags: 
+    - networking
+    - system
+    - security
+    - firewall
+    - iptables

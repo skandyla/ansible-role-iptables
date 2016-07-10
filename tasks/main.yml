@@ -1,0 +1,43 @@
+---
+
+- name: Include OS-specific variables.
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "../vars/{{ ansible_os_family }}_{{ ansible_distribution_major_version }}.yml"
+    - "../vars/{{ ansible_os_family }}.yml"
+
+- include: setup-RedHat.yml
+  when: ansible_os_family == 'RedHat'
+
+- include: setup-Debian.yml
+  when: ansible_os_family == 'Debian'
+
+# OS independent tasks
+- name: Configure template
+  template: 
+    src: iptables.j2 
+    dest:  "{{ iptables_config }}" 
+    owner: root 
+    group: root 
+    mode: 0640
+  notify:  restart iptables
+
+- name: Ensure iptables service is enabled
+  service: 
+    name: "{{ iptables_service }}"
+    enabled: yes
+    state: started
+
+- name: Check firewall rules
+  shell: >
+   iptables -L -n -v 
+  register: command
+- debug: var=command.stdout_lines
+
+#- name: Check firewall config
+#  shell: cat "{{ iptables_config }}"
+#  register: command
+#- debug: msg={{command.stdout_lines}}
+
+#- name: Debug iptables rules
+#  debug: msg={{ vars['iptables_rules'] }}

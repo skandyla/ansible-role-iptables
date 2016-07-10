@@ -1,0 +1,6 @@
+---
+iptables_pkgs:
+  - iptables
+  - iptables-persistent
+iptables_service: iptables-persistent
+iptables_config: '/etc/iptables/rules.v4'
