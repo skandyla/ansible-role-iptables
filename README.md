@@ -39,6 +39,7 @@ iptables_rules_default:
   reject:
     - INPUT -j REJECT --reject-with icmp-host-prohibited
 
+###  list of default rulesets - nat table
 iptables_rules_nat_default:
   snat:
     - POSTROUTING -s 192.168.0.0/24 -o extInt -j SNAT --to-source my_real_ip
@@ -51,8 +52,7 @@ iptables_rules_enabled:
   - ssh
   - reject
 
-### rules for nat table
-# disabled by default
+### enabled rules for nat table
 iptables_rules_nat_enabled: []
 ```
 
