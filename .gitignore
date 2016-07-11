@@ -1,0 +1,4 @@
+#
+*.un~
+.vagrant
+playbook.retry
