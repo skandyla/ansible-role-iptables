@@ -24,3 +24,5 @@ galaxy_info:
     - security
     - firewall
     - iptables
+
+dependencies: []
