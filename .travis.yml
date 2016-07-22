@@ -24,8 +24,21 @@ script:
   - ansible-playbook tests/test.yml -i tests/inventory --syntax-check
 
   # Run the role/playbook with ansible-playbook.
-  - ansible-playbook -i tests/inventory tests/test.yml --connection=local --sudo
+  - ansible-playbook tests/test.yml -i tests/inventory --connection=local --sudo
 
+  # Run the role/playbook again, checking to make sure it's idempotent.
+  - >
+    ansible-playbook -i tests/inventory tests/$SITE --connection=local --sudo
+    | grep -q 'changed=0.*failed=0'
+    && (echo 'Idempotence test: pass' && exit 0)
+    || (echo 'Idempotence test: fail' && exit 1)
 
-#notifications:
-#  webhooks: https://galaxy.ansible.com/api/v1/notifications/
+  # Check if TCP port 443 is open.
+  - >
+    sudo iptables -L -n
+    | grep -q "ACCEPT.*dpt:443"
+    && (echo 'Port 443 is open - pass' && exit 0)
+    || (echo 'Port 443 is not open - fail' && exit 1)
+
+notifications:
+  webhooks: https://galaxy.ansible.com/api/v1/notifications/

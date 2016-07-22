@@ -27,17 +27,15 @@
     name: "{{ iptables_service }}"
     enabled: yes
     state: started
+  changed_when: false
 
-- name: Check firewall rules
-  shell: >
-   iptables -L -n -v 
-  register: command
-- debug: var=command.stdout_lines
+#- name: Check firewall rules
+#  shell: >
+#   iptables -L -n -v 
+#  register: command
+#- debug: var=command.stdout_lines
 
 #- name: Check firewall config
 #  shell: cat "{{ iptables_config }}"
 #  register: command
 #- debug: msg={{command.stdout_lines}}
-
-#- name: Debug iptables rules
-#  debug: msg={{ vars['iptables_rules'] }}
