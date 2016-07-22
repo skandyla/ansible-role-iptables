@@ -36,9 +36,9 @@ script:
   # Check if TCP port 443 is open.
   - >
     sudo iptables -L -n
-    | grep -q "ACCEPT.*dpt:443"
-    && (echo 'Port 443 is open - pass' && exit 0)
-    || (echo 'Port 443 is not open - fail' && exit 1)
+    | grep -q "ACCEPT.*dpt:22"
+    && (echo 'Port 22 is open - pass' && exit 0)
+    || (echo 'Port 22 is not open - fail' && exit 1)
 
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
