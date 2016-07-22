@@ -2,7 +2,7 @@ Ansible Role: Iptables
 =========
 [![Build Status](https://travis-ci.org/skandyla/ansible-role-iptables.svg?branch=master)](https://travis-ci.org/skandyla/ansible-role-iptables)
 
-Installs a simple iptables-classic firewall for RHEL/CentOS or Debian/Ubunty systems.  
+Installs a simple iptables-classic firewall for RHEL/CentOS or Debian/Ubuntu systems.  
 For EL it uses traditional iptables package and iptables service for those who doesn't like firewalld.  
 For Debian/Ubuntu role uses iptables-persistent package and service as well.  
 This role for those who has a good knowledges of iptables and prefer to write complex rules on yourself.  
@@ -112,7 +112,7 @@ iptables_rules_enabled:
 License
 -------
 
-BSD
+MIT / BSD
 
 Author Information
 ------------------
