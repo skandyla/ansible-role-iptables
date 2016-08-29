@@ -29,11 +29,13 @@
     state: started
   changed_when: false
 
-#- name: Check firewall rules
-#  shell: >
-#   iptables -L -n -v 
-#  register: command
-#- debug: var=command.stdout_lines
+- block:
+    - name: Check firewall rules
+      shell: >
+       iptables -L -n -v 
+      register: command
+    - debug: var=command.stdout_lines
+  when: iptables_show_rules == true
 
 #- name: Check firewall config
 #  shell: cat "{{ iptables_config }}"

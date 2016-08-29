@@ -29,8 +29,8 @@ iptables_rules_nat_default:
 ### list of actual rulesets
 # Required for combine filter.
 # Redefine it according to your actuall settings
-iptables_rules:
-  whitelist: [] 
+iptables_rules: 
+  whitelist: []
 iptables_rules_nat:
   snat: []
                                                                                      
@@ -44,3 +44,6 @@ iptables_rules_enabled:
 
 ### enabled rules for nat table
 iptables_rules_nat_enabled: []
+
+###
+iptables_show_rules: false
