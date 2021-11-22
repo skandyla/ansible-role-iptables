@@ -1,5 +1,4 @@
 ---
-
 - name: Include OS-specific variables.
   include_vars: "{{ item }}"
   with_first_found:
@@ -13,14 +12,24 @@
   when: ansible_os_family == 'Debian'
 
 # OS independent tasks
-- name: Configure template
+- name: Configure template iptables_v6
   template: 
-    src: iptables.j2 
-    dest:  "{{ iptables_config }}" 
+    src: iptables_v4.j2
+    dest:  "{{ iptables_v4_config }}"
     owner: root 
     group: root 
     mode: 0640
   notify:  restart iptables
+
+- name: Configure template iptables_v6
+  template:
+    src: iptables_v6.j2
+    dest:  "{{ iptables_v6_config }}"
+    owner: root
+    group: root
+    mode: 0640
+  notify:  restart iptables
+  when: iptables_rules_v6_enabled | length > 0
 
 - name: Ensure iptables service is enabled
   service: 
@@ -30,14 +39,19 @@
   changed_when: false
 
 - block:
-    - name: Check firewall rules
+    - name: Check firewall rules_v4
       shell: >
-       iptables -L -n -v 
-      register: command
-    - debug: var=command.stdout_lines
-  when: iptables_show_rules == true
+       iptables -L -n -v
+      register: rules_v4
+    - debug: var=rules_v4.stdout_lines
+    - name: Check firewall rules_v6
+      shell: >
+        ip6tables -L -n -v
+      register: rules_v6
+    - debug: var=rules_v6.stdout_lines
+  when: iptables_show_rules_v6 == true
 
 #- name: Check firewall config
-#  shell: cat "{{ iptables_config }}"
+#  shell: cat "{{ iptables_v4_config }}"
 #  register: command
 #- debug: msg={{command.stdout_lines}}

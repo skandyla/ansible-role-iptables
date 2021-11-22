@@ -1,0 +1,21 @@
+# iptables configuration
+# managed by Ansible
+
+# Filter-related rules
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+{% if iptables_rules_v6_docker %}
+:DOCKER - [0:0]
+:DOCKER-ISOLATION-STAGE-1 - [0:0]
+:DOCKER-USER - [0:0]
+:DOCKER-ISOLATION-STAGE-2 - [0:0]
+{% endif %}
+{% for group in iptables_rules_v6_enabled %}
+{% for rule in (iptables_rules_v6_default|combine(iptables_rules_v6, recursive=True))[group]  %}
+-A {{ rule }}
+{% endfor %}
+{% endfor %}
+COMMIT
+# End filter-related rules.

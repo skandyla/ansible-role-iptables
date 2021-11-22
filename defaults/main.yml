@@ -1,23 +1,35 @@
 ---
 ### list of default rulesets - filter table
-iptables_rules_default: {}
+iptables_rules_v4_default: {}
+iptables_rules_v6_default: {}
 
 ### list of default rulesets - nat table
-iptables_rules_nat_default: {}
+iptables_rules_v4_nat_default: {}
   
 
 ### list of actual rulesets
 # Required for combine filter.
 # Redefine it according to your actuall settings
-iptables_rules: {}
-iptables_rules_nat: {}
-                                                                                     
+iptables_rules_v4: {}
+iptables_rules_v4_nat: {}
+
+iptables_rules_v6: {}
+
 
 ### enabled rules
-iptables_rules_enabled: []
+iptables_rules_v4_enabled: []
+iptables_rules_v6_enabled: []
 
 ### enabled rules for nat table
-iptables_rules_nat_enabled: []
+iptables_rules_v4_nat_enabled: []
 
 ###
-iptables_show_rules: false
+iptables_show_rules_v4: false
+iptables_show_rules_v6: false
+
+###
+iptables_roles_v4_docker: false
+iptables_rules_v6_docker: false
+
+###
+#  iptables_docker_interface: eth0

@@ -1,0 +1,39 @@
+# iptables configuration
+# managed by Ansible
+
+{% if iptables_rules_v4_nat_enabled %}
+# Nat-related rules
+*nat
+:PREROUTING ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+{% if iptables_rules_v4_docker %}
+:DOCKER - [0:0]
+{% endif %}
+{% for group in iptables_rules_v4_nat_enabled %}
+{% for rule in (iptables_rules_v4_nat_default|combine(iptables_rules_v4_nat, recursive=True))[group]  %}
+-A {{ rule }}
+{% endfor %}
+{% endfor %}
+COMMIT
+# End nat-related rules.
+{% endif %}
+
+# Filter-related rules
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+{% if iptables_roles_v4_docker %}
+:DOCKER - [0:0]
+:DOCKER-ISOLATION-STAGE-1 - [0:0]
+:DOCKER-USER - [0:0]
+:DOCKER-ISOLATION-STAGE-2 - [0:0]
+{% endif %}
+{% for group in iptables_rules_v4_enabled %}
+{% for rule in (iptables_rules_v4_default|combine(iptables_rules_v4, recursive=True))[group]  %}
+-A {{ rule }}
+{% endfor %}
+{% endfor %}
+COMMIT
+# End filter-related rules.

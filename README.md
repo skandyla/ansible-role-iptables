@@ -9,6 +9,13 @@ This role for those who has a good knowledges of iptables and prefer to write co
 Also, role operates with firewall lists and  allows to define group and custom variables for fine tuning of your servers.  
 For example, you can create default lists of rulesets and place them to group_vars or some global variables, then you can specify which rulesets are enabled per hosts or group.  
 
+As long IPv6 comes to our live, it's important to have ability to configure IPv6 firewall rules.
+You have two separate variables to define IPv4 and IPv6 rules. Please look into `default/main.yml`
+Keep in mind, that by variable `iptables_rules_v6_enabled` triggers settings an IPv6 firewall rules.
+
+In case if you have docker you can enable setting of docker chains by this variables `iptables_roles_v4_docker` and `iptables_roles_v6_docker`.
+It can be important in case if you need to hide services running inside docker. Example of Docker rules see in Role variables.
+
 Requirements
 ------------
 
@@ -20,8 +27,8 @@ Role Variables
 Available variables are listed below, along with default values (see defaults/main.yml):
 
 ```
-### list of default rulesets - filter table
-iptables_rules_default:
+### list of IPv4 default rulesets - filter table
+iptables_rules_v4_default:
   initial:
     - INPUT -i lo -j ACCEPT
     - INPUT -p icmp  --icmp-type echo-request -j ACCEPT
@@ -38,6 +45,8 @@ iptables_rules_default:
     - INPUT -p tcp -m tcp --dport 80 -m state --state NEW -j ACCEPT
   https:
     - INPUT -p tcp -m tcp --dport 443 -m state --state NEW -j ACCEPT
+  docker:
+     DOCKER-USER -i {{ iptables_docker_interface }} -p tcp -m tcp --dport 3306 -j DROP
   reject:
     - INPUT -j REJECT --reject-with icmp-host-prohibited
 
@@ -46,31 +55,35 @@ iptables_rules_nat_default:
   snat:
     - POSTROUTING -s 192.168.0.0/24 -o extInt -j SNAT --to-source my_real_ip
 
+iptables_rules_v6_default:
+  initial:
+    - INPUT -i lo -j ACCEPT
+    - INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+    - INPUT -m conntrack --ctstate INVALID -j DROP
+    - INPUT -s ::1/128 ! -i lo -j DROP
+  ssh:
+    - INPUT -p tcp -m tcp --dport 22 -m state --state NEW -j ACCEPT
+  reject:
+    - INPUT -j REJECT --reject-with icmp6-adm-prohibited
 
 ### list of actual rulesets                                                          
 # Required for combine filter.                                                       
 # Redefine it according to your actual settings                                     
-iptables_rules:                                                                      
-  whitelist: []                                                                      
-iptables_rules_nat:                                                                  
-  snat: []                                                                           
-
+iptables_rules_v6:
+  whitelist: []
 
 ### enabled rules                                                                    
-iptables_rules_enabled:                                                              
+iptables_rules_v6_enabled:
   - initial                                                                          
   - whitelist                                                                        
   - ssh                                                                              
   - reject                                                                           
-
-### enabled rules for nat table                                                      
-iptables_rules_nat_enabled: []
-
 ```
 
 You can define as many lists as you want for different groups and servers, and activate them via
-`iptables_rules_enabled` variable.  
+`iptables_rules_v4_enabled` and `iptables_rules_v6_enabled` variables.
 
+Where `iptables_docker_interface` that is an interface, which looks into internet.
 
 Dependencies
 ------------
@@ -91,15 +104,15 @@ Example Playbook
 Inside *vars/main.yml:*  
 ```
 # define lists:
-iptables_rules:                                                                      
-  whitelist:                                                                         
-    - INPUT -s 192.168.33.0/24 -j ACCEPT                                             
+iptables_rules_v4:
+  whitelist:
+    - INPUT -s 192.168.33.0/24 -j ACCEPT
   custom:                                                                            
     - INPUT -p tcp -m tcp --dport 8443 -m state --state NEW -j ACCEPT                
 
 
 # enabled rules order take matter!                                                 
-iptables_rules_enabled:                                                              
+iptables_rules_v4_enabled:
   - initial                                                                          
   - whitelist                                                                        
   - http                                                                             
@@ -108,6 +121,43 @@ iptables_rules_enabled:
   - reject   
 ```
 
+If you use Docker(or other service)
+-----------------------------------
+
+**Important:** in case if you have Docker and you set some rules or no do not set rules, it's important to
+restart this service after iptables rules was applied.
+
+For example you have fail2ban and docker services, which also interact with an iptables:
+
+```
+---
+- hosts: all
+
+  become: yes
+
+  roles:
+     - iptables
+
+  tasks:
+    - name: Populate service facts
+      service_facts:
+
+    - name: Restart fail2ban # noqa 503
+      become: yes
+      service:
+        name: fail2ban
+        state: restarted
+      when: "'fail2ban' in services"
+
+    - name: Restart docker # noqa 503
+      become: yes
+      service:
+        name: docker
+        state: restarted
+      when: "'docker.service' in services"
+```
+
+Here we run iptables role and then restart services, in order to restore they iptables rules.
 
 License
 -------
