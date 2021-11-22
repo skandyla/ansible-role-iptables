@@ -121,6 +121,43 @@ iptables_rules_v4_enabled:
   - reject   
 ```
 
+If you use Docker(or other service)
+-----------------------------------
+
+**Important:** in case if you have Docker and you set some rules or no do not set rules, it's important to
+restart this service after iptables rules was applied.
+
+For example you have fail2ban and docker services, which also interact with an iptables:
+
+```
+---
+- hosts: all
+
+  become: yes
+
+  roles:
+     - iptables
+
+  tasks:
+    - name: Populate service facts
+      service_facts:
+
+    - name: Restart fail2ban # noqa 503
+      become: yes
+      service:
+        name: fail2ban
+        state: restarted
+      when: "'fail2ban' in services"
+
+    - name: Restart docker # noqa 503
+      become: yes
+      service:
+        name: docker
+        state: restarted
+      when: "'docker.service' in services"
+```
+
+Here we run iptables role and then restart services, in order to restore they iptables rules.
 
 License
 -------
